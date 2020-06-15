@@ -1,0 +1,284 @@
+<template>
+	<view class="bg-dark">
+		<video id="video" ref="video"
+		:src="src"
+		:poster="poster" 
+		:controls="false"
+		:show-center-play-btn="false"
+		:show-fullscreen-btn="false" 
+		:show-progress="false" 
+		:enable-progress-gesture="false" 
+		style="width: 750rpx;height: 225px;"
+		@fullscreenchange="fullscreenchange"
+		@timeupdate="timeupdate"
+		@play="isplay = true" 
+		@pause="isplay = false"
+		>
+			<view class="position-absolute flex align-center justify-center" :style="videoBox">
+				<!-- 蒙版 -->
+				<view class="position-absolute left-0 right-0" :style="modalStyle" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd"></view>
+				<!-- 提示框 -->
+				<view v-if="showToastStatus" class="p-2 rounded" style="background-color: rgba(0,0,0,0.3);">
+					<text v-if="toast.type === 'progress'" class="font text-white">{{currentTime|formatTime}}/{{duration|formatTime}}</text>
+					<text v-if="toast.type === 'msg'" class="font text-white">{{toast.msg}}</text>
+				</view>
+			</view>
+		</video>
+		<!-- 非全屏 -->
+		<!-- 顶部 -->
+		<view v-if="showStatusBarStatus && !fullScreenStatus" class="video-bg-top position-fixed top-0 left-0 right-0">
+			<view :style="'height: '+statusBarHeight+'px;'"></view>
+			<view style="height: 44px;" class="flex align-center">
+				<f-icon-btn :icon="'\ue612'" @click="back"></f-icon-btn>
+			</view>
+		</view>
+		<!-- 底部控制条 -->
+		<view v-if="showStatusBarStatus && !fullScreenStatus" class="video-bg-bottom position-fixed bottom-0 left-0 right-0">
+			<view style="height: 44px;" class="flex align-stretch">
+				<f-icon-btn v-if="!isplay" :icon="'\ue63a'" size="22" @click="playOrPause"></f-icon-btn>
+				<f-icon-btn v-else :icon="'\ue605'" size="22" @click="playOrPause"></f-icon-btn>
+				<view class="flex-1">
+					<f-slider :duration="duration" :currentTime="currentTime" @change="sliderChange" @update="sliderUpdate"></f-slider>
+				</view>
+				<view class="flex align-center justify-center" style="width: 80px;">
+					<text class="font-sm text-white">{{currentTime|formatTime}}/{{duration|formatTime}}</text>
+				</view>
+				<f-icon-btn :icon="'\ue800'" size="22" @click="fullOrExitScreen"></f-icon-btn>
+			</view>
+		</view>
+		
+	</view>
+</template>
+
+<script>
+	const d = weex.requireModule('dom');
+	let videoCTX = null
+	let showToastTimer = null
+	let timer = null
+	import fIconBtn from './components/f-icon-btn.vue';
+	import fSlider from './components/f-slider.vue';
+	export default {
+		components: {
+			fIconBtn,
+			fSlider
+		},
+		data() {
+			return {
+				src: "https://douyinzcmcss.oss-cn-shenzhen.aliyuncs.com/%E8%AF%BE%E6%97%B61.%20%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D.mp4",
+				poster:"https://douyinzcmcss.oss-cn-shenzhen.aliyuncs.com/shengchengqi/datapic/1.jpg",
+				// 播放状态
+				isplay:false,
+				
+				statusBarHeight:0,
+				
+				currentTime:0,
+				duration:0,
+				
+				windowWidth:0,
+				windowHeight:0,
+				
+				fullScreenStatus:false,
+				
+				showToastStatus:false,
+				toast:{
+					type:"msg",
+					msg:"提示"
+				},
+				
+				showStatusBarStatus:true,
+				
+				oldTouchs:{},
+				oldValue:{},
+				dbCount:0,
+				touchType:null,
+				platform:"android"
+			}
+		},
+		created() {
+			let res = uni.getSystemInfoSync()
+			this.statusBarHeight = res.statusBarHeight
+			this.windowHeight = res.windowHeight
+			this.windowWidth = res.windowWidth
+			this.platform = res.platform
+			// 引入图标
+			d.addRule('fontFace', {
+				'fontFamily': "iconfont",
+				'src': "url('https://at.alicdn.com/t/font_1419176_mzo8rsjxi4c.ttf')"
+			});
+		},
+		mounted() {
+			videoCTX = this.$refs.video
+		},
+		computed: {
+			videoBox() {
+				return this.fullScreenStatus ? `width:${this.windowHeight}px;height:${this.windowWidth};` : 'width:750rpx;height:225px;'
+			},
+			modalStyle(){
+				let top = this.statusBarHeight + 44
+				return `top:${top}px;bottom:44px;`
+			}
+		},
+		methods: {
+			// 全屏/退出全屏
+			fullOrExitScreen(){
+				if(this.fullScreenStatus){
+					videoCTX.exitFullScreen()
+				} else {
+					videoCTX.requestFullScreen()
+				}
+			},
+			// 显示或隐藏控制条
+			showOrHideStatusBar(){
+				this.showStatusBarStatus ? this.hideStatusBar() : this.showStatusBar()
+			},
+			// 显示控制条
+			showStatusBar(){
+				this.showStatusBarStatus = true
+				timer = timer ? clearTimeout(timer) : null
+				timer = setTimeout(()=>{
+					this.hideStatusBar()
+					timer = null
+				},3000)
+			},
+			// 隐藏控制条
+			hideStatusBar(){
+				this.showStatusBarStatus = false
+			},
+			back(){
+				uni.navigateBack({
+					delta: 1
+				});
+			},
+			// 播放/暂停
+			playOrPause(){
+				this.showToast({
+					msg:this.isplay ? '暂停' : '播放'
+				})
+				if(this.isplay){
+					videoCTX.pause()
+				} else {
+					this.showStatusBar()
+					videoCTX.play()
+				}
+			},
+			fullscreenchange(e) {
+				this.fullScreenStatus = e.detail.fullScreen
+			},
+			timeupdate(e){
+				if(!this.showToastStatus){
+					this.currentTime = parseInt(e.detail.currentTime)
+				}
+				this.duration = parseInt(e.detail.duration)
+			},
+			// 进度条变化
+			sliderChange(e){
+				videoCTX.seek(e)
+				this.showToastStatus = false
+				videoCTX.play()
+			},
+			sliderUpdate(e){
+				this.showStatusBar()
+				videoCTX.pause()
+				this.showToastStatus = true
+				this.showToast({
+					type:"progress",
+					autoClose:false
+				})
+				this.currentTime = e
+			},
+			showToast(options){
+				this.toast.type = options.type || 'msg'
+				this.toast.msg = options.msg || '提示'
+				this.showToastStatus = true
+				if(options.autoClose !== false){
+					if(showToastTimer){
+						clearTimeout(showToastTimer)
+					} 
+					showToastTimer = setTimeout(()=>{
+						this.showToastStatus = false
+						showToastTimer = null
+					},500)
+				}
+			},
+			touchStart(e){
+				this.oldTouchs = e.changedTouches[0]
+				
+				this.oldValue = {
+					currentTime:this.currentTime
+				}
+			},
+			touchMove(e){
+				let newTouchs = e.changedTouches[0]
+				if(!this.touchType){
+					this.touchType = Math.abs( newTouchs.pageX - this.oldTouchs.pageX ) > 20 ? 'currentTime' : null
+					if(this.fullScreenStatus && this.platform === 'ios'){
+						this.touchType = Math.abs( newTouchs.pageY - this.oldTouchs.pageY ) > 20 ? 'currentTime' : null
+					}
+					if(this.touchType === 'currentTime'){
+						videoCTX.pause()
+					}
+				} else if(this.touchType === 'currentTime'){
+					this.showToast({
+						type:"progress",
+						autoClose:false
+					})
+					this.showStatusBar()
+					let newCurrentTime = (newTouchs.pageX - this.oldTouchs.pageX)/250 * this.duration *2 + this.oldValue.currentTime * 1
+					if(this.fullScreenStatus && this.platform === 'ios'){
+						newCurrentTime = (newTouchs.pageY - this.oldTouchs.pageY)/250 * this.duration *2 + this.oldValue.currentTime * 1
+					}
+					newCurrentTime = newCurrentTime > this.duration ? this.duration : newCurrentTime
+					newCurrentTime = newCurrentTime < 0 ? 0 : newCurrentTime
+					this.currentTime = newCurrentTime
+				}
+			},
+			touchEnd(e){
+				if(this.touchType === 'currentTime'){
+					videoCTX.seek(this.currentTime)
+					videoCTX.play()
+				} else {
+					if(this.dbCount === 1 || this.dbCount === 0 ){
+						this.dbCount++
+					}
+					if(this.dbCount > 0){
+						setTimeout(()=>{
+							// 单击
+							if(this.dbCount === 1){
+								this.showOrHideStatusBar()
+							}
+							// 双击
+							if(this.dbCount === 2){
+								this.playOrPause()
+							}
+							this.dbCount = 0
+						},250)
+					}
+				}
+				this.touchType = null
+				this.showToastStatus = false
+			}
+		},
+		filters: {
+			formatTime(result) {
+			   var h = Math.floor(result / 3600) < 10 ? '0'+Math.floor(result / 3600) : Math.floor(result / 3600);
+			   var m = Math.floor((result / 60 % 60)) < 10 ? '0' + Math.floor((result / 60 % 60)) : Math.floor((result / 60 % 60));
+			   var s = Math.floor((result % 60)) < 10 ? '0' + Math.floor((result % 60)) : Math.floor((result % 60));
+			   return result = result > 3600 ? (h + ":" + m + ":" + s) : m + ":" + s;
+			}
+		},
+		provide(){
+			return {
+				v:this
+			}
+		},
+	}
+</script>
+
+<style>
+.video-bg-top{
+	background-image:linear-gradient(to top , rgba(0,0,0,0) , rgba(0,0,0,0.5));
+}
+.video-bg-bottom{
+	background-image:linear-gradient(to bottom , rgba(0,0,0,0) , rgba(0,0,0,0.5));
+}
+</style>

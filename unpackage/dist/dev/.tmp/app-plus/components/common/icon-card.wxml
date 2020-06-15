@@ -1,0 +1,1 @@
+<view class="icon-card"><image class="bg-light" style="width:70rpx;height:70rpx;" src="{{item.cover}}"></image><text class="text-muted mt-1 font">{{item.name}}</text></view>

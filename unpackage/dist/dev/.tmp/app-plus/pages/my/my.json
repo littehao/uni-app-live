@@ -1,0 +1,28 @@
+{
+  "navigationBarTitleText": "",
+  "titleNView": {
+    "buttons": [
+      {
+        "color": "#333333",
+        "colorPressed": "#333333",
+        "fontSize": "18px",
+        "float": "right",
+        "fontSrc": "/static/font/iconfont.ttf",
+        "text": ""
+      },
+      {
+        "color": "#333333",
+        "colorPressed": "#333333",
+        "fontSize": "18px",
+        "float": "right",
+        "fontSrc": "/static/font/iconfont.ttf",
+        "text": ""
+      }
+    ]
+  },
+  "usingComponents": {
+    "f-list-item": "/components/common/f-list-item",
+    "main-big-button": "/components/common/mian-big-button",
+    "f-popup": "/components/common/f-popup"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "titleNView": {
+    "searchInput": {
+      "borderRadius": "20px",
+      "backgroundColor": "#f6f7f8",
+      "placeholder": "精彩热搜：浩浩编程",
+      "placeholderColor": "#959fa0",
+      "align": "left",
+      "disabled": true
+    }
+  },
+  "usingComponents": {
+    "card": "/components/common/card",
+    "icon-card": "/components/common/icon-card"
+  }
+}

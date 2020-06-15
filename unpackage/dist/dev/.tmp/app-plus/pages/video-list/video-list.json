@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "视频列表",
+  "usingComponents": {
+    "form-item": "/components/common/form-item"
+  }
+}

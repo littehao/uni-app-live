@@ -1,0 +1,14 @@
+{
+  "titleNView": {
+    "type": "transparent",
+    "buttons": [
+      {
+        "type": "menu",
+        "float": "right"
+      }
+    ]
+  },
+  "usingComponents": {
+    "media-item": "/components/common/media-item"
+  }
+}

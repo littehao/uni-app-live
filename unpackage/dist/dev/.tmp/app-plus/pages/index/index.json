@@ -1,0 +1,26 @@
+{
+  "titleNView": {
+    "searchInput": {
+      "borderRadius": "20px",
+      "backgroundColor": "#f6f7f8",
+      "placeholder": "精彩热搜：浩浩编程",
+      "placeholderColor": "#959fa0",
+      "align": "left",
+      "disabled": true
+    },
+    "buttons": [
+      {
+        "text": "分类",
+        "float": "right",
+        "fontSize": "18px",
+        "color": "#959fa0",
+        "colorPressed": "#333333"
+      }
+    ]
+  },
+  "usingComponents": {
+    "swiper-dot": "/components/common/swiper-dot",
+    "card": "/components/common/card",
+    "media-item": "/components/common/media-item"
+  }
+}

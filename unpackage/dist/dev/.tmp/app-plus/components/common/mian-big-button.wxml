@@ -1,0 +1,1 @@
+<view class="py-3 rounded-circle bg-main text-white font-md flex align-center justify-center" hover-class="bg-main-hover" data-event-opts="{{[['tap',[['$emit',['click']]]]]}}" bindtap="__e"><slot></slot></view>

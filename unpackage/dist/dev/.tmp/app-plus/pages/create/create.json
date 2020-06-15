@@ -1,0 +1,18 @@
+{
+  "navigationBarTitleText": "发布作品",
+  "titleNView": {
+    "buttons": [
+      {
+        "color": "#fb7299",
+        "colorPressed": "#f0376b",
+        "fontSize": "16px",
+        "float": "right",
+        "text": "发布"
+      }
+    ]
+  },
+  "usingComponents": {
+    "form-item": "/components/common/form-item",
+    "main-big-button": "/components/common/mian-big-button"
+  }
+}

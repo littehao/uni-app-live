@@ -1,0 +1,29 @@
+/*颜色*/
+.text-main{
+	color:#fb7299;
+}
+.text-main-hover{
+	color: #f0376b;
+}
+.text-main-disabled{
+	color: #cdc3c6;
+}
+
+.bg-main{
+	background-color:#fb7299;
+}
+.bg-main-hover{
+	background-color: #f0376b;
+}
+.bg-main-disabled{
+	background-color: #cdc3c6;
+}
+
+.line-h{
+	line-height: 1.2;
+}
+
+.f-divider{
+	height: 18rpx;
+	background:#F8F9FA;
+}

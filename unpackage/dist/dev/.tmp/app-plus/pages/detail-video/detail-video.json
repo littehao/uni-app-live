@@ -1,0 +1,19 @@
+{
+  "titleNView": false,
+  "subNVues": [
+    {
+      "id": "top",
+      "path": "./pages/detail-video/subNVue/video",
+      "style": {
+        "position": "dock",
+        "dock": "top",
+        "width": "100%",
+        "height": "225px"
+      }
+    }
+  ],
+  "usingComponents": {
+    "media-list": "/components/common/media-item",
+    "f-popup": "/components/common/f-popup"
+  }
+}

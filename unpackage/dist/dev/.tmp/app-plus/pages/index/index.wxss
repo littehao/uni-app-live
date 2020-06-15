@@ -1,0 +1,11 @@
+
+.f-list{
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-wrap: wrap;
+	        flex-wrap: wrap;
+	padding-left: 15rpx;
+	padding-right: 15rpx;
+}
+
